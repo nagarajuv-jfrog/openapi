@@ -9,14 +9,54 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    strategy:
+      # fail-fast: false ensures that if one file fails validation, the others still upload
+      fail-fast: false
+      # max-parallel: 5 prevents hitting ReadMe API rate limits with concurrent uploads
+      max-parallel: 5
+      matrix:
+        api-config:
+          # Artifactory Security
+          - { file: './artifactory-security.json', slug: 'artifactory-security' }
+          - { file: './artifactory-security-deprecated-security-apis.json', slug: 'artifactory-security-deprecated' }
+          
+          # Artifacts Storage
+          - { file: './artifacts---storage.json', slug: 'artifacts-storage' }
+          - { file: './artifacts---storage-deploy-artifact-apis.json', slug: 'artifacts-storage-deploy' }
+          - { file: './artifacts---storage-item-properties-apis.json', slug: 'artifacts-storage-item-properties' }
+          - { file: './artifacts---storage-repository-replication-apis.json', slug: 'artifacts-storage-replication' }
+          - { file: './artifacts---storage-trash-can-garbage-collection-apis.json', slug: 'artifacts-storage-trash-can' }
+          
+          # Builds & Release Management
+          - { file: './builds.json', slug: 'builds' }
+          - { file: './release-bundles-v1.json', slug: 'release-bundles-v1' }
+          - { file: './release-lifecycle-management-release-bundle-v2-apis.json', slug: 'release-lifecycle-management-v2' }
+          - { file: './release-lifecycle-management-release-bundle-v2-promotion-apis.json', slug: 'release-lifecycle-management-v2-promotion' }
+          - { file: './retention--release-bundle-v1-.json', slug: 'retention-release-bundle-v1' }
+          
+          # Federated Repositories
+          - { file: './federated-repositories.json', slug: 'federated-repositories' }
+          - { file: './federated-repositories-artifactory-federation-service-monitoring.json', slug: 'federated-repositories-monitoring' }
+          - { file: './federated-repositories-legacy-federation-monitoring.json', slug: 'federated-repositories-legacy-monitoring' }
+          
+          # Repositories & Import/Export
+          - { file: './repositories.json', slug: 'repositories' }
+          - { file: './repositories-get-puppet-apis.json', slug: 'repositories-puppet' }
+          - { file: './import---export.json', slug: 'import-export' }
+          
+          # Miscellaneous Services
+          - { file: './cold-storage.json', slug: 'cold-storage' }
+          - { file: './evidence.json', slug: 'evidence' }
+          - { file: './loggers.json', slug: 'loggers' }
+          - { file: './plugins.json', slug: 'plugins' }
+          - { file: './searches.json', slug: 'searches' }
+          - { file: './smart-archiving.json', slug: 'smart-archiving' }
+
     steps:
-      - name: Checkout this repo
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Run GitHub Action to sync OpenAPI file at ./path-to-file.json
-      - name: GitHub Action
-        # We recommend specifying a fixed version, i.e. @v10
-        # Docs: https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions
+      - name: Sync ${{ matrix.api-config.slug }}
         uses: readmeio/rdme@v10
         with:
-          rdme: openapi upload ./smart-archiving.json --key=${{ secrets.README_API_KEY }} --slug=smartarchiving
+          rdme: openapi upload ${{ matrix.api-config.file }} --key=${{ secrets.README_API_KEY }} --slug=${{ matrix.api-config.slug }}
