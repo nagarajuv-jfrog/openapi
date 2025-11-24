@@ -1,0 +1,146 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Artifacts Storage - Trash Can Garbage Collection APIs",
+        "description": "APIs for managing and cleaning up the trash can in Artifactory. This includes operations for permanently deleting items, restoring items, emptying the trash can, and running garbage collection.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/artifactory/api/trash/clean/{repoName/path}": {
+            "delete": {
+                "summary": "Delete Item From Trash Can",
+                "description": "Permanently deletes an item from the trash can.",
+                "operationId": "deleteItemFromTrashCan",
+                "security": [
+                    {
+                        "adminUser": []
+                    },
+                    {
+                        "projectAdminUser": []
+                    },
+                    {
+                        "managePermissionsUser": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "repoName",
+                        "in": "path",
+                        "required": true,
+                        "description": "The name of the repository",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "required": true,
+                        "description": "The path of the item to be deleted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "repoName/path",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item successfully deleted from trash can"
+                    },
+                    "401": {
+                        "description": "Unauthorized access"
+                    },
+                    "403": {
+                        "description": "Forbidden access"
+                    },
+                    "404": {
+                        "description": "Item not found in trash can"
+                    }
+                }
+            }
+        },
+        "/artifactory/api/trash/restore/{from path}": {
+            "post": {
+                "description": "Restore an item from the trash can. Requires Artifactory Pro",
+                "security": [
+                    {
+                        "admin_user": [],
+                        "project_admin_user": [],
+                        "manage_permissions_user": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "from path",
+                        "in": "path",
+                        "required": true,
+                        "description": "The path of the item in the trash can to be restored.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to path",
+                        "in": "query",
+                        "required": true,
+                        "description": "The path where the item will be restored to.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully restored trash items"
+                    }
+                },
+                "operationId": "postArtifactoryApiTrashRestoreFromPath"
+            }
+        },
+        "/artifactory/api/trash/empty": {
+            "post": {
+                "description": "Permanently deletes the entire contents of the Trash Can. Requires Artifactory Pro",
+                "security": [
+                    {
+                        "admin_user": []
+                    }
+                ],
+                "tags": [],
+                "summary": "Empty Trash Can",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                },
+                "operationId": "EmptyTrashCan",
+                "parameters": []
+            }
+        },
+        "/artifactory/api/system/storage/gc": {
+            "post": {
+                "description": "Deletes from the Trash Can artifacts with a retention time that has expired and deletes orphan binaries when the full garbage collection cycle runs. The full garbage collection runs after a certain number of iterations and this number can be changed by the user. The default value is 20.",
+                "operationId": "runGarbageCollection",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "tags": [],
+                "parameters": []
+            }
+        }
+    },
+    "tags": []
+}

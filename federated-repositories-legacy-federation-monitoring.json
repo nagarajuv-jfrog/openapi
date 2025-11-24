@@ -1,0 +1,70 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Federated Repositories - Legacy Federation Monitoring",
+        "version": "1.0.0",
+        "description": "Provides endpoints for monitoring the synchronization state of Federated repositories in the JPD."
+    },
+    "paths": {
+        "/artifactory/api/federation/state": {
+            "get": {
+                "tags": [],
+                "summary": "Get Federation Sync State",
+                "description": "Returns the synchronization state of all Federated repositories in the JPD.",
+                "security": [
+                    {
+                        "Admin": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "example": [
+                                    {
+                                        "localRepoKey": "generic-fed-a",
+                                        "status": "OUT_OF_SYNC",
+                                        "members": [
+                                            {
+                                                "remoteUrl": "http://docker.for.mac.localhost:10104/artifactory/",
+                                                "remoteRepoKey": "generic-fed-a"
+                                            },
+                                            {
+                                                "remoteUrl": "http://docker.for.mac.localhost:10105/artifactory/",
+                                                "remoteRepoKey": "generic-fed-a"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "localRepoKey": "generic-fed-b",
+                                        "status": "DISABLED",
+                                        "members": []
+                                    },
+                                    {
+                                        "localRepoKey": "generic-fed-c",
+                                        "status": "FULL_SYNC_RUNNING",
+                                        "members": [
+                                            {
+                                                "remoteUrl": "http://docker.for.mac.localhost:10104/artifactory/",
+                                                "remoteRepoKey": "generic-fed-c"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Bad Credentials"
+                    },
+                    "403": {
+                        "description": "Permission Denied"
+                    }
+                },
+                "operationId": "getArtifactoryApiFederationState"
+            }
+        }
+    },
+    "tags": []
+}

@@ -1,0 +1,1162 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Artifactory Security",
+        "description": "Provides endpoints for managing security configurations in Artifactory, including key pairs, SSL certificates, user permissions, and password policies.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/artifactory/api/v2/repositories/{repo-name}/keyPairs": {
+            "post": {
+                "summary": "Set Key",
+                "description": "Sets the GPG keys for the repository.",
+                "operationId": "setKey",
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "text/plain": {
+                            "schema": {
+                                "type": "string",
+                                "example": "key-name"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "repo-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": []
+            }
+        },
+        "/artifactory/api/security/keys/trusted": {
+            "post": {
+                "description": "Sets the public preconfigured GPG key of a JFrog Distribution service that needs to upload Release Bundles to a source Artifactory and Edge node. The GPG public key will be uploaded under Trusted Keys in the source Artifactory and Edge node.",
+                "security": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "alias": {
+                                        "type": "string",
+                                        "example": "distribution key 1.0.0"
+                                    },
+                                    "public_key": {
+                                        "type": "string",
+                                        "example": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nVersion: BCPG C# v1.6.1.0\n\nmQENBFpDamEBCACrrAoudjlwnrRqqjdrCgPwEPyHqYddXPLDHViOVZfiREp9ENkq\n2PIThlj79Cj+60ePaE4Kxaze+uH1ckTxhCNIblHWiGUluKxH8Cpy7huCBdwqkD/y\n\n...\n\nx4w+26u0BNxE+4xlWaJ3NUb4CWtXLERfr8aKdkf1RXdMF3c96EXCBtGzLJbhrw==\n=D24P\n-----END PGP PUBLIC KEY BLOCK-----"
+                                    }
+                                },
+                                "required": [
+                                    "alias",
+                                    "public_key"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Expected Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "kid": {
+                                            "type": "string",
+                                            "example": "46635b"
+                                        },
+                                        "fingerprint": {
+                                            "type": "string",
+                                            "example": "f5:80:6a:1b:08:35:e7:8c:fa:a8:a0:fc:b4:fd:30:87:93:7d:19:22"
+                                        },
+                                        "key": {
+                                            "type": "string",
+                                            "example": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nVersion: BCPG C# 1.6.1.0\n\nmQENBFpDamEBCACrrAoudjlwnrRqqjdrCgPwEPyHqYddXPLDHViOVZfiREp9ENkq\n2PIThlj79Cj+60ePaE4Kxaze+uH1ckTxhCNIblHWiGUluKxH8Cpy7huCBdwqkD/y\n\n...\n\nx4w+26u0BNxE+4xlWaJ3NUb4CWtXLERfr8aKdkf1RXdMF3c96EXCBtGzLJbhrw==\n=D24P\n-----END PGP PUBLIC KEY BLOCK-----"
+                                        },
+                                        "issued_on": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2017-12-27T09:39:45.000Z"
+                                        },
+                                        "issued_by": {
+                                            "type": "string",
+                                            "example": "alen@alen.com"
+                                        },
+                                        "valid_until": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "1970-01-01T00:00:00.000Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "operationId": "postArtifactoryApiSecurityKeysTrusted"
+            }
+        },
+        "/artifactory/api/storage/{repoKey}/{itemPath}": {
+            "get": {
+                "description": "Returns a list of effective permissions for the specified item (file or folder). Only users and groups with some permissions on the item are returned. Supported by local and local-cached repositories. Permissions are returned according to the following conventions: m=admin; d=delete; w=deploy; n=annotate; r=read",
+                "parameters": [
+                    {
+                        "name": "repoKey",
+                        "in": "path",
+                        "required": true,
+                        "description": "Repository key",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "itemPath",
+                        "in": "path",
+                        "required": true,
+                        "description": "Item path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "permissions",
+                        "in": "query",
+                        "required": true,
+                        "description": "Flag to get effective permissions",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "uri": {
+                                            "type": "string",
+                                            "description": "URI of the item"
+                                        },
+                                        "principals": {
+                                            "type": "object",
+                                            "properties": {
+                                                "users": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "m",
+                                                                "d",
+                                                                "w",
+                                                                "n",
+                                                                "r"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "groups": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "m",
+                                                                "d",
+                                                                "w",
+                                                                "n",
+                                                                "r"
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getArtifactoryApiStorageRepokeyItempath"
+            }
+        },
+        "/artifactory/api/system/security/certificates/{Certificate_alias}": {
+            "post": {
+                "description": "Adds an SSL certificate.",
+                "operationId": "addCertificate",
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/text": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The certificates were successfully installed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "integer"
+                                        },
+                                        "message": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "Certificate_alias",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/artifactory/api/security/encryptedPassword": {
+            "get": {
+                "description": "Get the encrypted password of the authenticated requestor.",
+                "summary": "Get User Encrypted Password",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved encrypted password",
+                        "content": {
+                            "text/plain": {
+                                "example": "AP5v2zs9ga7CJNZb74u3arAKE5B"
+                            }
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [],
+                "operationId": "GetUserEncryptedPassword"
+            }
+        },
+        "/artifactory/api/security/apiKey": {
+            "post": {
+                "summary": "Create API Key",
+                "description": "Create an API key for the current user. Returns an error if API key already exists - use regenerate API key instead.",
+                "operationId": "createApiKey",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "apiKey": "3OloposOtVFyCMrT+cXmCAScmVMPrSYXkWIjiyDCXsY="
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": []
+            }
+        },
+        "/artifactory/api/security/configuration/passwordExpirationPolicy": {
+            "put": {
+                "description": "Sets the password expiration policy",
+                "summary": "Set Password Expiration Policy",
+                "operationId": "setPasswordExpirationPolicy",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "enabled": {
+                                        "type": "boolean"
+                                    },
+                                    "passwordMaxAge": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 999
+                                    },
+                                    "notifyByEmail": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "enabled",
+                                    "passwordMaxAge",
+                                    "notifyByEmail"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password expiration policy set successfully",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ],
+                "parameters": []
+            }
+        },
+        "/artifactory/api/security/lockedUsers": {
+            "get": {
+                "description": "If locking out users is enabled, lists all users that were locked out due to recurrent incorrect login attempts.",
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of locked out users",
+                        "content": {
+                            "application/json": {
+                                "example": [
+                                    "usera",
+                                    "userb",
+                                    "..."
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "operationId": "getArtifactoryApiSecurityLockedusers"
+            }
+        },
+        "/artifactory/api/security/keypair/verify": {
+            "post": {
+                "tags": [],
+                "summary": "Verify Key Pair",
+                "description": "Verifies the validity of the key pair.",
+                "operationId": "verifyKeyPair",
+                "security": [
+                    {
+                        "adminAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "pairName": {
+                                        "type": "string",
+                                        "description": "Name of the key pair"
+                                    },
+                                    "pairType": {
+                                        "type": "string",
+                                        "description": "Type of the key pair (e.g., RSA)"
+                                    },
+                                    "alias": {
+                                        "type": "string",
+                                        "description": "Alias for the key pair"
+                                    },
+                                    "privateKey": {
+                                        "type": "string",
+                                        "description": "Private key in PEM format"
+                                    },
+                                    "publicKey": {
+                                        "type": "string",
+                                        "description": "Public key in PEM format"
+                                    },
+                                    "passphrase": {
+                                        "type": "string",
+                                        "description": "Passphrase for the private key"
+                                    }
+                                },
+                                "required": [
+                                    "pairName",
+                                    "pairType",
+                                    "alias",
+                                    "privateKey",
+                                    "publicKey"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Key was verified.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Key was verified."
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": []
+            }
+        },
+        "/artifactory/api/security/keypair": {
+            "put": {
+                "tags": [],
+                "summary": "Update Key Pair",
+                "description": "Updates a key pair with new key pairs.",
+                "operationId": "updateKeyPair",
+                "security": [
+                    {
+                        "adminUser": []
+                    }
+                ],
+                "requestBody": {
+                    "description": "Key pair update payload",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "pairName": {
+                                        "type": "string",
+                                        "description": "(mandatory)"
+                                    },
+                                    "pairType": {
+                                        "type": "string",
+                                        "description": "(mandatory)"
+                                    },
+                                    "alias": {
+                                        "type": "string",
+                                        "description": "(mandatory)"
+                                    },
+                                    "privateKey": {
+                                        "type": "string",
+                                        "description": "(mandatory)"
+                                    },
+                                    "publicKey": {
+                                        "type": "string",
+                                        "description": "(mandatory)"
+                                    },
+                                    "passphrase": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "pairName",
+                                    "pairType",
+                                    "alias",
+                                    "privateKey",
+                                    "publicKey"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "pairName": {
+                                            "type": "string",
+                                            "description": "(mandatory)"
+                                        },
+                                        "pairType": {
+                                            "type": "string",
+                                            "description": "(mandatory)"
+                                        },
+                                        "alias": {
+                                            "type": "string",
+                                            "description": "(mandatory)"
+                                        },
+                                        "vaultKey": {
+                                            "type": "string"
+                                        },
+                                        "vaultPublicKey": {
+                                            "type": "object",
+                                            "properties": {
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "key": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "pairName",
+                                        "pairType",
+                                        "alias"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": []
+            }
+        },
+        "/artifactory/api/security/permissions/{permissionTargetName}": {
+            "get": {
+                "summary": "Get Permission Target Details",
+                "description": "Returns the details of an Artifactory Permission Target",
+                "operationId": "getPermissionTargetDetails",
+                "parameters": [
+                    {
+                        "name": "permissionTargetName",
+                        "in": "path",
+                        "required": true,
+                        "description": "The name of the permission target",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "permission-target": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "adminAuth": []
+                    }
+                ],
+                "tags": []
+            }
+        },
+        "/artifactory/api/v2/repositories/{repo-name}/keyPairs/secondary": {
+            "delete": {
+                "summary": "Delete Secondary Key",
+                "description": "Deletes the secondary key from the repository.",
+                "operationId": "deleteSecondaryKey",
+                "parameters": [
+                    {
+                        "name": "repo-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Secondary key deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "adminAuth": []
+                    }
+                ],
+                "tags": []
+            }
+        },
+        "/artifactory/api/gpg/key/public": {
+            "put": {
+                "description": "Sets the default public GPG key that Artifactory provides to Debian, RPM, and Opkg clients to verify packages.",
+                "security": [
+                    {
+                        "adminAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "gpgKey": {
+                                        "type": "string",
+                                        "description": "The public GPG key"
+                                    }
+                                },
+                                "required": [
+                                    "gpgKey"
+                                ]
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "GPG key set successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "operationId": "putArtifactoryApiGpgKeyPublic"
+            }
+        },
+        "/artifactory/api/system/security/certificates": {
+            "get": {
+                "description": "Returns a list of installed SSL certificates.",
+                "operationId": "getCertificates",
+                "responses": {
+                    "200": {
+                        "description": "A list of installed SSL certificates",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "certificateAlias": {
+                                                "type": "string",
+                                                "description": "The Certificate Alias"
+                                            },
+                                            "issuedTo": {
+                                                "type": "string",
+                                                "description": "The entity to whom the certificate was issued"
+                                            },
+                                            "issuedBy": {
+                                                "type": "string",
+                                                "description": "The issuing entity"
+                                            },
+                                            "issuedOn": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "description": "ISO8601 (yyyy-MM-dd'T'HH:mm:ss.SSSZ)"
+                                            },
+                                            "validUntil": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "description": "ISO8601 (yyyy-MM-dd'T'HH:mm:ss.SSSZ)"
+                                            },
+                                            "fingerPrint": {
+                                                "type": "string",
+                                                "description": "The certificate's SHA256 fingerprint"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "tags": [],
+                "parameters": []
+            }
+        },
+        "/artifactory/api/security/users/authorization/unexpirePassword/{userName}": {
+            "post": {
+                "description": "Unexpires a user's password.",
+                "summary": "Unexpire Password for a Single User",
+                "operationId": "unexpirePasswordForSingleUser",
+                "parameters": [
+                    {
+                        "name": "userName",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password successfully unexpired"
+                    },
+                    "403": {
+                        "description": "Requires Artifactory Pro and an admin user"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/artifactory/api/v2/repositories/{repo-name}/keyPairs/primary/public": {
+            "get": {
+                "description": "Downloads the primary key.",
+                "parameters": [
+                    {
+                        "name": "repo-name",
+                        "in": "path",
+                        "required": true,
+                        "description": "Name of the repository",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PGP Public Key",
+                        "content": {
+                            "text/plain": {
+                                "example": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nVersion: Keybase OpenPGP v1.0.0\nComment: https://keybase.io/crypto\nxo0EYFtBJQEEAL5J3YCUKGvdmZm4Pz4Lv+1sQGV7DXKg9FBN16iBPtkkb8OQOpm0\nWKM4wxtaHVexY85b1fukPcQbwXruJsC7N561eErDbGI+e4oSKLuwuh36p61SXlb0\nvEcJ1BQ9RvURNrOr9FZ/kmz6ZXF2BfZcNhKCvtb9FrCFHbdg1gz070J3ABEBAAHN\nGk9tcmkgWml2IDxvbXJpekBqZnJvZy5jb20+wq0EEwEKABcFAmBbQSUCGy8DCwkH\nAxUKCAIeAQIXgAAKCRDiyYShXcZUR4DcBACmvtHnrMrvpIK+k0gomTG4yxuvyw+D\nPu1pQfBvcPx1ZgO9LAFOkZufsvIggcZFoT83Al5K+UM0ScE9B/mhRkAlWFCU/kI5\niHkmwVgquZY1gDngnNPDpGU6IFz7m+JY2dCh8h2Pv/L9RXGFz9Y4ap3TwMdESHyz\ndctf4Xs+Vl2Ot86NBGBbQSUBBACra/j7LOgJ+cXnn8/H61y203/Kfvv94M8Ql1pl\nbI8J+I1PrMGaUJV7skxFMKuAR6arwRhGQD1aXaum7lGHEMgXjQcH8XWYRRB2nHB6\nOCb9WcBBU08TNeVL/33yIGvqUEhyBa+rg8LACzB1NLijnbMrAgOEjSFPtwoz/oWN\nk4ElKQARAQABwsCCBBgBCgAPBQJgW0ElBQkPCZwAAhsuAKcJEOLJhKFdxlRHnCAE\nGQEKAAYFAmBbQSUACgkQlcfAo4P7X+FsYwP3SjYhtFo6m+bPpNmWmb252R2EJbgG\n2WqemuNWfd+TdUnS3m5/14AgDNeLWk6Wq2DXxyromY7xRMS3XqfVOrxEUx6pz06c\nE+l7L244mOaTBwxw75aFcvS4KlPdt/ltx9yUjXZwUAcg27B+06YYzbFk6eOVnHvW\nx6drBMfQG2SAKVPeA/4u2kyNX5fJ0L019MQ9ThrAldlQ+yxrPpQLLm5w6eFYO5F1\ndXtJpZBpA8vQWqpabMwYsY7678P64HZuK0Gg+VnKp+b/WnQ575xgOKUwxZaX8awH\nZS5vYfVDiOgBdPAMS4uzDX4hVyDH+RiEspN1lvHO1wtb2VwFr//rLhOE+9c5C86N\nBGBbQSUBBACt2ljFYEKk1GMEcqau6rnMXSf17o6sTbXp/s8cxecz0EQAA7khyVuZ\nwM/pjO4kNp32Qm+qGCl/S4+3iHAp5WJOEuxtLG3ajninpuZjG9BjSMzXdbQDVIeK\nZ4N2lSnJ0oPvA1o+hkc8iRxVbJsDjCk55qUw3Op64pIjcCa6Dro0PQARAQABwsCD\nBBgBCgAPBQJgW0ElBQkPCZwAAhsuAKgJEOLJhKFdxlRHnSAEGQEKAAYFAmBbQSUA\nCgkQXWwRccpztEU92gP8C8Y/3Fr1G2vK716FZOP5q9NErJZTHFQuFGmpDgyAveEo\n3C24aBf6ouIDbRPFb1S2SiM3SfalozAtzpmOWW7aNOMtOF+Xs083UML7GaJk81Ge\nYqdWHv4znr2QBRgt8r0+DBV66eAI61Q+byyNewezrrr+8TRy0U6r1Xw9AE9oMS4O\n6QP9F0tSdHaklWrIU9QtwSTt6B/MEp3v/O8TBb8ouz0sh7WcCGBu2nP1Avw7nRJw\njs4ULXME1EW6vk/WD+m+8UcF8Okho6aQArJJoKETyVmSQYRw/1BJXP1FXtds16R0\nsGZgi5TKHxI9dVjLEnjuuxor+vKkpxeLoxDkYVJN1QUNS0U=\n=kJ6g\n-----END PGP PUBLIC KEY BLOCK-----"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "tags": [],
+                "operationId": "getArtifactoryApiV2RepositoriesRepoNameKeypairsPrimaryPublic"
+            }
+        },
+        "/artifactory/api/security/users/{userName}": {
+            "get": {
+                "description": "Get the details of an Artifactory user",
+                "summary": "Get User Details",
+                "operationId": "getUserDetails",
+                "parameters": [
+                    {
+                        "name": "userName",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            },
+                            "application/vnd.org.jfrog.artifactory.security.Users+json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "adminUser": []
+                    }
+                ],
+                "deprecated": true,
+                "x-replaced-by": [
+                    {
+                        "href": "/document/preview/512447#UUID-2c9d3108-969c-75ac-3eda-c122f625ae4b"
+                    }
+                ]
+            }
+        },
+        "/artifactory/api/v2/repositories/{repo-name}/keyPairs/promote": {
+            "post": {
+                "summary": "Promote",
+                "description": "Promotes the secondary key to be the primary key for the repository.",
+                "operationId": "promoteRepositoryKey",
+                "parameters": [
+                    {
+                        "name": "repo-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the repository"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful promotion"
+                    }
+                },
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "tags": []
+            }
+        },
+        "/artifactory/api/v2/repositories/{repo-name}/keyPairs/primary": {
+            "post": {
+                "summary": "Set Primary Key",
+                "description": "Sets the Primary Key for the repository.",
+                "operationId": "setPrimaryKey",
+                "parameters": [
+                    {
+                        "name": "repo-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Name of the repository"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "text/plain": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "example": "key-name"
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Primary Key set successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "adminAuth": []
+                    }
+                ],
+                "tags": []
+            }
+        },
+        "/artifactory/api/gpg/key/private": {
+            "put": {
+                "summary": "Set GPG Private Key",
+                "description": "Sets the default private GPG key that Artifactory uses to sign Debian, RPM, and ipk (Opkg) packages.",
+                "security": [
+                    {
+                        "adminUser": []
+                    }
+                ],
+                "requestBody": {
+                    "description": "GPG key to be provided as part of the JSON payload",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "gpgKey": {
+                                        "type": "string",
+                                        "description": "The private GPG key"
+                                    }
+                                },
+                                "required": [
+                                    "gpgKey"
+                                ]
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully set the GPG private key",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "SetGPGPrivateKey",
+                "parameters": []
+            }
+        },
+        "/artifactory/api/security/users/authorization/expirePassword": {
+            "post": {
+                "description": "Expires password for a list of users",
+                "summary": "Expire Password for Multiple Users",
+                "operationId": "expirePasswordForMultipleUsers",
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "example": "userA"
+                                }
+                            },
+                            "example": [
+                                "davids",
+                                "johnb"
+                            ]
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                },
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "tags": []
+            }
+        },
+        "/artifactory/api/system/decrypt": {
+            "post": {
+                "description": "Removes the current Artifactory encryption key and deactivates Artifactory key encryption.",
+                "summary": "Deactivate Artifactory Key Encryption",
+                "operationId": "deactivateArtifactoryKeyEncryption",
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": []
+            }
+        },
+        "/artifactory/api/system/encrypt": {
+            "post": {
+                "description": "Creates a new Artifactory encryption key and activates Artifactory key encryption.",
+                "operationId": "activateArtifactoryKeyEncryption",
+                "summary": "Activate Artifactory Key Encryption",
+                "security": [
+                    {
+                        "adminUser": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Encryption key activated successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": []
+            }
+        },
+        "/artifactory/api/security/permissions": {
+            "get": {
+                "description": "Get the permission targets list",
+                "summary": "Get Permission Targets",
+                "operationId": "getPermissionTargets",
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {},
+                            "application/vnd.org.jfrog.artifactory.security.Users+json": {},
+                            "application/vnd.org.jfrog.artifactory.security.Groups+json": {},
+                            "application/vnd.org.jfrog.artifactory.security.PermissionTargets+json": {}
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "parameters": []
+            }
+        },
+        "/artifactory/api/security/users/authorization/expirePasswordForAllUsers": {
+            "post": {
+                "summary": "Expire Password for All Users",
+                "description": "Expires password for all users",
+                "operationId": "expirePasswordForAllUsers",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                },
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "tags": []
+            }
+        },
+        "/artifactory/api/system/security": {
+            "get": {
+                "summary": "Security Configuration (Deprecated)",
+                "description": "Returns the security configuration (security.xml). Deprecated from Artifactory 7.x and above, it is recommended to replace this REST with Export Access Configuration REST API which uses the access.bootstrap.json.",
+                "operationId": "getSecurityConfiguration",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/xml": {
+                                "example": "<security.xml/>"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "admin_auth": []
+                    }
+                ],
+                "parameters": []
+            }
+        },
+        "/artifactory/api/gpg/passphrase": {
+            "put": {
+                "description": "Sets the pass phrase required signing Debian and ipk packages using the private key",
+                "security": [
+                    {
+                        "admin": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-GPG-PASSPHRASE",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "text/plain": {}
+                        }
+                    }
+                },
+                "operationId": "putArtifactoryApiGpgPassphrase"
+            }
+        },
+        "/artifactory/api/v2/repositories/{repo-name}/keyPairs/secondary/public": {
+            "get": {
+                "summary": "Download Secondary Public Key",
+                "description": "Downloads the secondary key.",
+                "operationId": "downloadSecondaryPublicKey",
+                "parameters": [
+                    {
+                        "name": "repo-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PGP Public Key Block",
+                        "content": {
+                            "text/plain": {
+                                "example": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nVersion: Keybase OpenPGP v1.0.0\nComment: https://keybase.io/crypto\nxo0EYFtBJQEEAL5J3YCUKGvdmZm4Pz4Lv+1sQGV7DXKg9FBN16iBPtkkb8OQOpm0\nWKM4wxtaHVexY85b1fukPcQbwXruJsC7N561eErDbGI+e4oSKLuwuh36p61SXlb0\nvEcJ1BQ9RvURNrOr9FZ/kmz6ZXF2BfZcNhKCvtb9FrCFHbdg1gz070J3ABEBAAHN\nGk9tcmkgWml2IDxvbXJpekBqZnJvZy5jb20+wq0EEwEKABcFAmBbQSUCGy8DCwkH\nAxUKCAIeAQIXgAAKCRDiyYShXcZUR4DcBACmvtHnrMrvpIK+k0gomTG4yxuvyw+D\nPu1pQfBvcPx1ZgO9LAFOkZufsvIggcZFoT83Al5K+UM0ScE9B/mhRkAlWFCU/kI5\niHkmwVgquZY1gDngnNPDpGU6IFz7m+JY2dCh8h2Pv/L9RXGFz9Y4ap3TwMdESHyz\ndctf4Xs+Vl2Ot86NBGBbQSUBBACra/j7LOgJ+cXnn8/H61y203/Kfvv94M8Ql1pl\nbI8J+I1PrMGaUJV7skxFMKuAR6arwRhGQD1aXaum7lGHEMgXjQcH8XWYRRB2nHB6\nOCb9WcBBU08TNeVL/33yIGvqUEhyBa+rg8LACzB1NLijnbMrAgOEjSFPtwoz/oWN\nk4ElKQARAQABwsCCBBgBCgAPBQJgW0ElBQkPCZwAAhsuAKcJEOLJhKFdxlRHnCAE\nGQEKAAYFAmBbQSUACgkQlcfAo4P7X+FsYwP3SjYhtFo6m+bPpNmWmb252R2EJbgG\n2WqemuNWfd+TdUnS3m5/14AgDNeLWk6Wq2DXxyromY7xRMS3XqfVOrxEUx6pz06c\nE+l7L244mOaTBwxw75aFcvS4KlPdt/ltx9yUjXZwUAcg27B+06YYzbFk6eOVnHvW\nx6drBMfQG2SAKVPeA/4u2kyNX5fJ0L019MQ9ThrAldlQ+yxrPpQLLm5w6eFYO5F1\ndXtJpZBpA8vQWqpabMwYsY7678P64HZuK0Gg+VnKp+b/WnQ575xgOKUwxZaX8awH\nZS5vYfVDiOgBdPAMS4uzDX4hVyDH+RiEspN1lvHO1wtb2VwFr//rLhOE+9c5C86N\nBGBbQSUBBACt2ljFYEKk1GMEcqau6rnMXSf17o6sTbXp/s8cxecz0EQAA7khyVuZ\nwM/pjO4kNp32Qm+qGCl/S4+3iHAp5WJOEuxtLG3ajninpuZjG9BjSMzXdbQDVIeK\nZ4N2lSnJ0oPvA1o+hkc8iRxVbJsDjCk55qUw3Op64pIjcCa6Dro0PQARAQABwsCD\nBBgBCgAPBQJgW0ElBQkPCZwAAhsuAKgJEOLJhKFdxlRHnSAEGQEKAAYFAmBbQSUA\nCgkQXWwRccpztEU92gP8C8Y/3Fr1G2vK716FZOP5q9NErJZTHFQuFGmpDgyAveEo\n3C24aBf6ouIDbRPFb1S2SiM3SfalozAtzpmOWW7aNOMtOF+Xs083UML7GaJk81Ge\nYqdWHv4znr2QBRgt8r0+DBV66eAI61Q+byyNewezrrr+8TRy0U6r1Xw9AE9oMS4O\n6QP9F0tSdHaklWrIU9QtwSTt6B/MEp3v/O8TBb8ouz0sh7WcCGBu2nP1Avw7nRJw\njs4ULXME1EW6vk/WD+m+8UcF8Okho6aQArJJoKETyVmSQYRw/1BJXP1FXtds16R0\nsGZgi5TKHxI9dVjLEnjuuxor+vKkpxeLoxDkYVJN1QUNS0U=\n=kJ6g\n-----END PGP PUBLIC KEY BLOCK-----"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "adminAuth": []
+                    }
+                ],
+                "tags": []
+            }
+        }
+    },
+    "tags": []
+}

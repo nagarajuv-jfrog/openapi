@@ -1,0 +1,797 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Builds",
+        "description": "Comprehensive API documentation for managing and querying build information within Artifactory. Includes endpoints for controlling build retention, promoting builds, appending modules, retrieving build details, and more.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/artifactory/api/build/retention/{buildName}": {
+            "post": {
+                "tags": [],
+                "summary": "Control Build Retention",
+                "description": "Specifies retention parameters for build info. A promoted Build Info cannot be deleted using this API. Starting from version 7.68.6, when executing the Build Retention command with the `deleteBuildArtifacts` parameter set to true, the build will be deleted but the build's Artifacts might not be deleted and remain in the repository.",
+                "operationId": "controlBuildRetention",
+                "parameters": [
+                    {
+                        "name": "buildName",
+                        "in": "path",
+                        "required": true,
+                        "description": "The name of the build",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "async",
+                        "in": "query",
+                        "required": false,
+                        "description": "Controls how the endpoint responds to the client regarding build operations. It determines whether the client will receive an immediate response or wait until the operation is complete.",
+                        "schema": {
+                            "type": "boolean",
+                            "enum": [
+                                true,
+                                false
+                            ]
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Retention parameters for the build",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "deleteBuildArtifacts": {
+                                        "type": "boolean",
+                                        "description": "When true, automatically removes build artifacts stored in Artifactory"
+                                    },
+                                    "count": {
+                                        "type": "integer",
+                                        "description": "The maximum number of builds to store in Artifactory"
+                                    },
+                                    "minimumBuildDate": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "Earliest build date to store in Artifactory - ISO8601 (yyyy-MM-dd'T'HH:mm:ss.SSSZ)"
+                                    },
+                                    "buildNumbersNotToBeDiscarded": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "description": "List of build numbers that should not be removed from Artifactory"
+                                    }
+                                },
+                                "example": {
+                                    "deleteBuildArtifacts": true,
+                                    "count": 100,
+                                    "minimumBuildDate": "2014-08-06T14:36:08.020Z",
+                                    "buildNumbersNotToBeDiscarded": [
+                                        5,
+                                        9
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Build retention operation completed successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/artifactory/api/build": {
+            "get": {
+                "summary": "All Builds",
+                "description": "Provides information on all builds.",
+                "operationId": "getAllBuilds",
+                "parameters": [
+                    {
+                        "name": "projectKey",
+                        "in": "query",
+                        "description": "Limits the response to the builds contained in the specified project.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "uri": {
+                                            "type": "string",
+                                            "example": "http://localhost:8081/artifactory/api/build"
+                                        },
+                                        "builds": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "uri": {
+                                                        "type": "string"
+                                                    },
+                                                    "lastStarted": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "uri": "http://localhost:8081/artifactory/api/build",
+                                    "builds": [
+                                        {
+                                            "uri": "/my-build",
+                                            "lastStarted": "2025-07-03T12:34:56.789Z"
+                                        },
+                                        {
+                                            "uri": "/jackrabbit",
+                                            "lastStarted": "2025-07-03T12:34:56.789Z"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/artifactory/api/docker/{repoKey}/v2/promote": {
+            "post": {
+                "summary": "Promote Docker Image",
+                "description": "Promotes a Docker image from one repository to another. Supports local and federated repositories.",
+                "operationId": "promoteDockerImage",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "targetRepo": {
+                                        "type": "string",
+                                        "description": "The target repository for the move or copy"
+                                    },
+                                    "dockerRepository": {
+                                        "type": "string",
+                                        "description": "The image name to promote"
+                                    },
+                                    "targetDockerRepository": {
+                                        "type": "string",
+                                        "description": "An optional docker repository name, if null, will use the same name as 'dockerRepository'"
+                                    },
+                                    "tag": {
+                                        "type": "string",
+                                        "description": "An optional tag name to promote, if null - the entire docker repository will be promoted. Available from v4.10."
+                                    },
+                                    "targetTag": {
+                                        "type": "string",
+                                        "description": "An optional target tag to assign the image after promotion, if null - will use the same tag"
+                                    },
+                                    "copy": {
+                                        "type": "boolean",
+                                        "description": "An optional value to set whether to copy instead of move. Default: false"
+                                    }
+                                },
+                                "example": {
+                                    "targetRepo": "docker-prod",
+                                    "dockerRepository": "jfrog/ubuntu"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful promotion",
+                        "content": {
+                            "application/text": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [],
+                "parameters": [
+                    {
+                        "name": "repoKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/artifactory/api/build/promote/{buildName}/{buildNumber}": {
+            "post": {
+                "tags": [],
+                "summary": "Build Promotion",
+                "description": "Change the status of a build, optionally moving or copying the build's artifacts and its dependencies to a target repository and setting properties on promoted artifacts.",
+                "operationId": "promoteBuild",
+                "parameters": [
+                    {
+                        "name": "buildName",
+                        "in": "path",
+                        "required": true,
+                        "description": "The name of the build to be promoted.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "buildNumber",
+                        "in": "path",
+                        "required": true,
+                        "description": "The number of the build to be promoted.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "required": false,
+                        "description": "The name of the project that contains the build to be promoted. If not defined, Artifactory uses the default build-info repo.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Bad Credentials"
+                    },
+                    "403": {
+                        "description": "Permission Denied"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "privilegedUser": []
+                    },
+                    {
+                        "deployPermission": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "The new status of the build."
+                                    },
+                                    "comment": {
+                                        "type": "string",
+                                        "description": "An optional comment describing the reason for the promotion."
+                                    },
+                                    "ciUser": {
+                                        "type": "string",
+                                        "description": "The user that invoked promotion from the CI server."
+                                    },
+                                    "timestamp": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "The time when the promotion command was received by Artifactory (ISO8601 format)."
+                                    },
+                                    "dryRun": {
+                                        "type": "boolean",
+                                        "description": "When set to true, performs a dry run of the promotion without executing any operation in Artifactory."
+                                    },
+                                    "sourceRepo": {
+                                        "type": "string",
+                                        "description": "The repository from which the build contents will be copied or moved."
+                                    },
+                                    "targetRepo": {
+                                        "type": "string",
+                                        "description": "The target repository to which the build contents will be copied or moved."
+                                    },
+                                    "copy": {
+                                        "type": "boolean",
+                                        "description": "Determines how to perform the build promotion."
+                                    },
+                                    "artifacts": {
+                                        "type": "boolean",
+                                        "description": "Determines whether to move/copy the build's artifacts."
+                                    },
+                                    "dependencies": {
+                                        "type": "boolean",
+                                        "description": "Determines whether to move/copy the build's dependencies."
+                                    },
+                                    "scopes": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "An array of dependency scopes that indicate the circumstances under which a dependency is available."
+                                    },
+                                    "properties": {
+                                        "type": "object",
+                                        "description": "A list of properties to attach to the build's artifacts."
+                                    },
+                                    "failFast": {
+                                        "type": "boolean",
+                                        "description": "When set to true, fails and aborts the promotion operation upon receiving an error."
+                                    }
+                                },
+                                "required": [
+                                    "ciUser",
+                                    "timestamp",
+                                    "dryRun",
+                                    "copy",
+                                    "artifacts",
+                                    "dependencies",
+                                    "failFast"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/artifactory/api/build/append/{buildName}/{buildNumber}": {
+            "post": {
+                "tags": [],
+                "summary": "Build Append",
+                "description": "Modifies an existing build by appending one or more new modules to it.",
+                "security": [
+                    {
+                        "Deploy and Delete permissions": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "buildName",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the parent build that will receive the module."
+                    },
+                    {
+                        "name": "buildNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The number of the parent build that will receive the module."
+                    },
+                    {
+                        "name": "started",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "The start date & time of the parent build that will receive the module (ISO 8601 format)."
+                    },
+                    {
+                        "name": "buildRepo",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The repository key of the parent build."
+                    },
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The project key of the parent build."
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/vnd.org.jfrog.build.BuildInfoModule+json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "properties": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "artifacts": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha1": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha256": {
+                                                        "type": "string"
+                                                    },
+                                                    "md5": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "originalDeploymentRepo": {
+                                                        "type": "string"
+                                                    },
+                                                    "path": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "dependencies": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha1": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha256": {
+                                                        "type": "string"
+                                                    },
+                                                    "md5": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "scopes": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "requestedBy": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "properties": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "artifacts": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha1": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha256": {
+                                                        "type": "string"
+                                                    },
+                                                    "md5": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "originalDeploymentRepo": {
+                                                        "type": "string"
+                                                    },
+                                                    "path": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "dependencies": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha1": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha256": {
+                                                        "type": "string"
+                                                    },
+                                                    "md5": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "scopes": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "requestedBy": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Appended successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Bad Credentials"
+                    },
+                    "403": {
+                        "description": "Permission Denied"
+                    },
+                    "404": {
+                        "description": "Build-Info not found"
+                    }
+                },
+                "operationId": "BuildAppend"
+            }
+        },
+        "/artifactory/api/build/{buildName}": {
+            "get": {
+                "description": "Provides information about the build runs for the given build name.",
+                "operationId": "getBuildRuns",
+                "parameters": [
+                    {
+                        "name": "buildName",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Name of the build to fetch runs for"
+                    },
+                    {
+                        "name": "projectKey",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Limits the response to builds contained in the specified project."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "uri": {
+                                            "type": "string",
+                                            "description": "URI to the build"
+                                        },
+                                        "buildsNumbers": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "uri": {
+                                                        "type": "string",
+                                                        "description": "URI to the specific build run"
+                                                    },
+                                                    "started": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "description": "Start time of the build run in ISO8601 format"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "privilegedUser": []
+                    }
+                ]
+            }
+        },
+        "/artifactory/api/build/rename/{buildName}": {
+            "post": {
+                "description": "Renames a build stored in Artifactory. Typically used to keep the build info in sync with a renamed build on the CI server.",
+                "parameters": [
+                    {
+                        "name": "buildName",
+                        "in": "path",
+                        "required": true,
+                        "description": "The name of the build to be renamed.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": true,
+                        "description": "The new name for the build.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "required": false,
+                        "description": "The name of the project associated with the build. This parameter is required if the build is part of a project.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Build renaming of 'myJobName' to 'myNewJobName' was successfully started.",
+                        "content": {
+                            "application/text": {}
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [],
+                "operationId": "postArtifactoryApiBuildRenameBuildname"
+            }
+        },
+        "/artifactory/api/build/{buildName}/{buildNumber}": {
+            "get": {
+                "description": "Returns information about the specified build.",
+                "summary": "Build Info",
+                "operationId": "getBuildInfo",
+                "parameters": [
+                    {
+                        "name": "buildName",
+                        "in": "path",
+                        "required": true,
+                        "description": "The name of the build.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "buildNumber",
+                        "in": "path",
+                        "required": true,
+                        "description": "The number of the build.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "started",
+                        "in": "query",
+                        "required": false,
+                        "description": "The timestamp of when the build started. Supported formats: yyyy-MM-dd'T'HH:mm:ss.SSSZ or yyyy-MM-dd'T'HH:mm:ss.SSS-0000 (or yyyy-MM-dd'T'HH:mm:ss.SSS+0000)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "diff",
+                        "in": "query",
+                        "required": false,
+                        "description": "The number of an older build to which you want to compare contents. For more information, see Builds Diff.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "required": false,
+                        "description": "The project associated with the build. If a project is not specified, or if you are not working with projects, the default build-info repository associated with your Artifactory instance is used.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response"
+                    }
+                }
+            }
+        }
+    },
+    "tags": []
+}
