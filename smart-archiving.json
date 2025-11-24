@@ -10,7 +10,7 @@
             "post": {
                 "tags": [],
                 "summary": "Search for Archived Packages -1",
-                "description": "This API is called to search the archived packages based on AQL query. Requires a platform admin. A project admin with permission can search on the project level.",
+                "description": "updated.",
                 "requestBody": {
                     "content": {
                         "application/json": {
