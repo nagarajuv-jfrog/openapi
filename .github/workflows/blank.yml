@@ -51,6 +51,7 @@ jobs:
           - { file: './plugins.json', slug: 'plugins' }
           - { file: './searches.json', slug: 'searches' }
           - { file: './smart-archiving.json', slug: 'smart-archiving' }
+          - { file: './swagger.json', slug: 'swagger' }
 
     steps:
       - name: Checkout Code
