@@ -1,5 +1,6 @@
 name: Sync OpenAPI definition to ReadMe
 
+# Run workflow for every push to the `main` branch
 on:
   push:
     branches:
@@ -9,8 +10,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     strategy:
+      # fail-fast: false ensures that if one file fails validation, the others still upload
       fail-fast: false
-      max-parallel: 3
+      # max-parallel: 5 prevents hitting ReadMe API rate limits with concurrent uploads
+      max-parallel: 5
       matrix:
         api-config:
           # Artifactory Security
@@ -54,58 +57,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
       - name: Sync ${{ matrix.api-config.slug }}
-        env:
-          README_API_KEY: ${{ secrets.README_API_KEY }}
-        run: |
-          # Debug: Check if API Key is set (length check only)
-          if [ -z "$README_API_KEY" ]; then
-            echo "Error: README_API_KEY is not set!"
-            exit 1
-          else
-            echo "README_API_KEY is set (length: ${#README_API_KEY})"
-          fi
-
-          # 1. Fetch all existing APIs from ReadMe
-          # Capture HTTP status code
-          HTTP_CODE=$(curl -s -o apis.json -w "%{http_code}" -u "$README_API_KEY:" https://dash.readme.com/api/v1/api-specification)
-          
-          echo "API Request Status Code: $HTTP_CODE"
-          
-          if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "Error: Failed to fetch APIs from ReadMe."
-            echo "Response Body:"
-            cat apis.json
-            exit 1
-          fi
-          
-          # Check if response is a valid JSON array
-          if ! jq -e 'if type=="array" then true else false end' apis.json > /dev/null; then
-             echo "Error: ReadMe API returned unexpected format:"
-             cat apis.json
-             exit 1
-          fi
-
-          # 2. Extract Title from local JSON
-          TITLE=$(jq -r .info.title "${{ matrix.api-config.file }}")
-          SLUG="${{ matrix.api-config.slug }}"
-          
-          echo "Processing: $TITLE (Slug: $SLUG)"
-          
-          # 3. Find matching ID by Title OR Slug
-          # This handles the mismatch that causes "already exists" errors
-          ID=$(jq -r --arg t "$TITLE" --arg s "$SLUG" '.[] | select(.title == $t or .slug == $s) | .id' apis.json | head -n 1)
-          
-          # 4. Run rdme CLI with the correct ID (if found) or Slug (if new)
-          if [ -n "$ID" ] && [ "$ID" != "null" ]; then
-            echo "✓ Found existing API definition (ID: $ID). Updating..."
-            npx --yes rdme@v10 openapi upload "${{ matrix.api-config.file }}" --key="$README_API_KEY" --id="$ID" --confirm-overwrite
-          else
-            echo "✚ No existing API found. Creating new..."
-            npx --yes rdme@v10 openapi upload "${{ matrix.api-config.file }}" --key="$README_API_KEY" --slug="$SLUG" --confirm-overwrite
-          fi
+        uses: readmeio/rdme@v10
+        with:
+          rdme: openapi upload ${{ matrix.api-config.file }} --key=${{ secrets.README_API_KEY }} --slug=${{ matrix.api-config.slug }} --confirm-overwrite
