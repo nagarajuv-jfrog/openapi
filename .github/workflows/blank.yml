@@ -1,6 +1,5 @@
 name: Sync OpenAPI definition to ReadMe
 
-# Run workflow for every push to the `main` branch
 on:
   push:
     branches:
@@ -10,9 +9,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     strategy:
-      # fail-fast: false ensures that if one file fails validation, the others still upload
       fail-fast: false
-      # max-parallel: 3 prevents hitting ReadMe API rate limits and reduces timeouts
       max-parallel: 3
       matrix:
         api-config:
@@ -57,7 +54,33 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Sync ${{ matrix.api-config.slug }}
-        uses: readmeio/rdme@v10
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          rdme: openapi upload ${{ matrix.api-config.file }} --key=${{ secrets.README_API_KEY }} --slug=${{ matrix.api-config.slug }} --branch=stable --confirm-overwrite
+          node-version: '18'
+
+      - name: Sync ${{ matrix.api-config.slug }}
+        env:
+          README_API_KEY: ${{ secrets.README_API_KEY }}
+        run: |
+          # 1. Fetch all existing APIs from ReadMe
+          curl -s -u "$README_API_KEY:" https://dash.readme.com/api/v1/api-specification > apis.json
+          
+          # 2. Extract Title from local JSON
+          TITLE=$(jq -r .info.title "${{ matrix.api-config.file }}")
+          SLUG="${{ matrix.api-config.slug }}"
+          
+          echo "Processing: $TITLE (Slug: $SLUG)"
+          
+          # 3. Find matching ID by Title OR Slug
+          # This handles the mismatch that causes "already exists" errors
+          ID=$(jq -r --arg t "$TITLE" --arg s "$SLUG" '.[] | select(.title == $t or .slug == $s) | .id' apis.json | head -n 1)
+          
+          # 4. Run rdme CLI with the correct ID (if found) or Slug (if new)
+          if [ -n "$ID" ] && [ "$ID" != "null" ]; then
+            echo "✓ Found existing API definition (ID: $ID). Updating..."
+            npx --yes rdme@v10 openapi upload "${{ matrix.api-config.file }}" --key="$README_API_KEY" --id="$ID" --confirm-overwrite
+          else
+            echo "✚ No existing API found. Creating new..."
+            npx --yes rdme@v10 openapi upload "${{ matrix.api-config.file }}" --key="$README_API_KEY" --slug="$SLUG" --confirm-overwrite
+          fi
