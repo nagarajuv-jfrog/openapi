@@ -1278,7 +1278,35 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "../build-artifacts-request-json.html"
+                                "type": "object",
+                                "properties": {
+                                    "buildName": {
+                                        "type": "string"
+                                    },
+                                    "buildNumber": {
+                                        "type": "string"
+                                    },
+                                    "buildStatus": {
+                                        "type": "string"
+                                    },
+                                    "repos": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "mappings": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "input": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             },
                             "example": {
                                 "buildName": "build-name",

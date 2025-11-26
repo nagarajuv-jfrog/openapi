@@ -60,4 +60,4 @@ jobs:
       - name: Sync ${{ matrix.api-config.slug }}
         uses: readmeio/rdme@v10
         with:
-          rdme: openapi upload ${{ matrix.api-config.file }} --key=${{ secrets.README_API_KEY }} --slug=${{ matrix.api-config.slug }}
+          rdme: openapi upload ${{ matrix.api-config.file }} --key=${{ secrets.README_API_KEY }} --slug=${{ matrix.api-config.slug }} --confirm-overwrite
