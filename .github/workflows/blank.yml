@@ -12,8 +12,8 @@ jobs:
     strategy:
       # fail-fast: false ensures that if one file fails validation, the others still upload
       fail-fast: false
-      # max-parallel: 5 prevents hitting ReadMe API rate limits with concurrent uploads
-      max-parallel: 5
+      # max-parallel: 3 prevents hitting ReadMe API rate limits and reduces timeouts
+      max-parallel: 3
       matrix:
         api-config:
           # Artifactory Security
@@ -60,4 +60,4 @@ jobs:
       - name: Sync ${{ matrix.api-config.slug }}
         uses: readmeio/rdme@v10
         with:
-          rdme: openapi upload ${{ matrix.api-config.file }} --key=${{ secrets.README_API_KEY }} --slug=${{ matrix.api-config.slug }} --confirm-overwrite
+          rdme: openapi upload ${{ matrix.api-config.file }} --key=${{ secrets.README_API_KEY }} --slug=${{ matrix.api-config.slug }} --branch=stable --confirm-overwrite
