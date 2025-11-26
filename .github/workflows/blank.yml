@@ -63,9 +63,26 @@ jobs:
         env:
           README_API_KEY: ${{ secrets.README_API_KEY }}
         run: |
+          # Debug: Check if API Key is set (length check only)
+          if [ -z "$README_API_KEY" ]; then
+            echo "Error: README_API_KEY is not set!"
+            exit 1
+          else
+            echo "README_API_KEY is set (length: ${#README_API_KEY})"
+          fi
+
           # 1. Fetch all existing APIs from ReadMe
-          # Added -f to fail on HTTP errors (4xx/5xx)
-          curl -s -f -u "$README_API_KEY:" https://dash.readme.com/api/v1/api-specification > apis.json || { echo "Failed to fetch APIs. Response:"; cat apis.json; exit 1; }
+          # Capture HTTP status code
+          HTTP_CODE=$(curl -s -o apis.json -w "%{http_code}" -u "$README_API_KEY:" https://dash.readme.com/api/v1/api-specification)
+          
+          echo "API Request Status Code: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "Error: Failed to fetch APIs from ReadMe."
+            echo "Response Body:"
+            cat apis.json
+            exit 1
+          fi
           
           # Check if response is a valid JSON array
           if ! jq -e 'if type=="array" then true else false end' apis.json > /dev/null; then
