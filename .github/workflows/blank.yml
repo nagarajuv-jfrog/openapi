@@ -57,15 +57,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Sync ${{ matrix.api-config.slug }}
         env:
           README_API_KEY: ${{ secrets.README_API_KEY }}
         run: |
           # 1. Fetch all existing APIs from ReadMe
-          curl -s -u "$README_API_KEY:" https://dash.readme.com/api/v1/api-specification > apis.json
+          # Added -f to fail on HTTP errors (4xx/5xx)
+          curl -s -f -u "$README_API_KEY:" https://dash.readme.com/api/v1/api-specification > apis.json || { echo "Failed to fetch APIs. Response:"; cat apis.json; exit 1; }
           
+          # Check if response is a valid JSON array
+          if ! jq -e 'if type=="array" then true else false end' apis.json > /dev/null; then
+             echo "Error: ReadMe API returned unexpected format:"
+             cat apis.json
+             exit 1
+          fi
+
           # 2. Extract Title from local JSON
           TITLE=$(jq -r .info.title "${{ matrix.api-config.file }}")
           SLUG="${{ matrix.api-config.slug }}"
