@@ -212,5 +212,19 @@
             }
         }
     },
-    "tags": []
+    "tags": [],
+    "components": {
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "HTTP Basic Authentication"
+            },
+            "privilegedUser": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Privileged user authentication"
+            }
+        }
+    }
 }

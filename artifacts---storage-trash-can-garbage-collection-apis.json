@@ -142,5 +142,44 @@
             }
         }
     },
-    "tags": []
+    "tags": [],
+    "components": {
+        "securitySchemes": {
+            "managePermissionsUser": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Manage permissions required"
+            },
+            "admin": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Admin user authentication"
+            },
+            "project_admin_user": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Project admin user authentication"
+            },
+            "projectAdminUser": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Project admin user authentication"
+            },
+            "manage_permissions_user": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Manage permissions required"
+            },
+            "admin_user": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Admin user authentication"
+            },
+            "adminUser": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Admin user authentication"
+            }
+        }
+    }
 }

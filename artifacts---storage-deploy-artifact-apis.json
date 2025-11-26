@@ -314,5 +314,19 @@
             }
         }
     },
-    "tags": []
+    "tags": [],
+    "components": {
+        "securitySchemes": {
+            "userAuth": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "User authentication"
+            },
+            "deployAuth": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Deploy permission required"
+            }
+        }
+    }
 }

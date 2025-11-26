@@ -66,5 +66,14 @@
             }
         }
     },
-    "tags": []
+    "tags": [],
+    "components": {
+        "securitySchemes": {
+            "Admin": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Admin user authentication"
+            }
+        }
+    }
 }

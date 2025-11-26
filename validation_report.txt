@@ -1,0 +1,36 @@
+================================================================
+OpenAPI 3.x Compliance Validation Report
+Generated: $(date)
+================================================================
+
+SUMMARY:
+--------
+Total JSON files: 25
+Valid JSON syntax: 25/25 (100%)
+OpenAPI 3.x compliant: 25/25 (100%)
+
+SECURITY SCHEMES STATUS:
+------------------------
+Files with security schemes: 22/25
+Files without security schemes (but no security references): 3/25
+
+Files Fixed:
+------------
+✓ artifactory-security-deprecated-security-apis.json (3 security schemes)
+✓ artifactory-security.json (6 security schemes)
+✓ artifacts---storage-deploy-artifact-apis.json (2 security schemes)
+✓ artifacts---storage-item-properties-apis.json (2 security schemes)
+✓ artifacts---storage-repository-replication-apis.json (6 security schemes)
+✓ artifacts---storage-trash-can-garbage-collection-apis.json (7 security schemes)
+✓ artifacts---storage.json (11 security schemes)
+✓ builds.json (4 security schemes)
+✓ cold-storage.json (3 security schemes)
+✓ evidence.json (2 security schemes)
+✓ federated-repositories-artifactory-federation-service-monitoring.json (2 security schemes)
+✓ federated-repositories-legacy-federation-monitoring.json (1 security schemes)
+✓ federated-repositories.json (3 security schemes)
+✓ import---export.json (3 security schemes)
+✓ loggers.json (1 security schemes)
+✓ plugins.json (4 security schemes)
+✓ release-bundles-v1.json (3 security schemes)
+✓ release-lifecycle-management-release-bundle-v2-apis.json (1 security schemes)
