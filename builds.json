@@ -368,7 +368,7 @@
                 "description": "Modifies an existing build by appending one or more new modules to it.",
                 "security": [
                     {
-                        "Deploy and Delete permissions": []
+                        "Deploy_and_Delete_permissions": []
                     }
                 ],
                 "parameters": [
@@ -796,11 +796,6 @@
     "tags": [],
     "components": {
         "securitySchemes": {
-            "Deploy and Delete permissions": {
-                "type": "http",
-                "scheme": "basic",
-                "description": "Deploy and Delete permissions required"
-            },
             "api_key": {
                 "type": "apiKey",
                 "in": "header",
@@ -816,6 +811,11 @@
                 "type": "http",
                 "scheme": "basic",
                 "description": "Privileged user authentication"
+            },
+            "Deploy_and_Delete_permissions": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Deploy and Delete permissions required"
             }
         }
     }

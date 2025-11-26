@@ -6,66 +6,6 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/artifactory/api/trash/clean/{repoName/path}": {
-            "delete": {
-                "summary": "Delete Item From Trash Can",
-                "description": "Permanently deletes an item from the trash can.",
-                "operationId": "deleteItemFromTrashCan",
-                "security": [
-                    {
-                        "adminUser": []
-                    },
-                    {
-                        "projectAdminUser": []
-                    },
-                    {
-                        "managePermissionsUser": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "repoName",
-                        "in": "path",
-                        "required": true,
-                        "description": "The name of the repository",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "path",
-                        "in": "path",
-                        "required": true,
-                        "description": "The path of the item to be deleted",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "repoName/path",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Item successfully deleted from trash can"
-                    },
-                    "401": {
-                        "description": "Unauthorized access"
-                    },
-                    "403": {
-                        "description": "Forbidden access"
-                    },
-                    "404": {
-                        "description": "Item not found in trash can"
-                    }
-                }
-            }
-        },
         "/artifactory/api/trash/restore/{from path}": {
             "post": {
                 "description": "Restore an item from the trash can. Requires Artifactory Pro",
@@ -139,6 +79,58 @@
                 ],
                 "tags": [],
                 "parameters": []
+            }
+        },
+        "/artifactory/api/trash/clean/{repoName}/{item-path}": {
+            "delete": {
+                "summary": "Delete Item From Trash Can",
+                "description": "Permanently deletes an item from the trash can.",
+                "operationId": "deleteItemFromTrashCan",
+                "security": [
+                    {
+                        "adminUser": []
+                    },
+                    {
+                        "projectAdminUser": []
+                    },
+                    {
+                        "managePermissionsUser": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "repoName",
+                        "in": "path",
+                        "required": true,
+                        "description": "The name of the repository",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "item-path",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Path within the repository"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item successfully deleted from trash can"
+                    },
+                    "401": {
+                        "description": "Unauthorized access"
+                    },
+                    "403": {
+                        "description": "Forbidden access"
+                    },
+                    "404": {
+                        "description": "Item not found in trash can"
+                    }
+                }
             }
         }
     },

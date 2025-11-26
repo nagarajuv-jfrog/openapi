@@ -576,66 +576,6 @@
                 "parameters": []
             }
         },
-        "/artifactory/{repo-key}/path/to/artifact.ext": {
-            "get": {
-                "summary": "Retrieve Latest Artifact",
-                "description": "Returns the latest artifact version from the specified destination.",
-                "parameters": [
-                    {
-                        "name": "repo-key",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Repository key"
-                    },
-                    {
-                        "name": "path",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Path to artifact"
-                    },
-                    {
-                        "name": "artifact.ext",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Artifact extension"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful retrieval of the latest artifact",
-                        "content": {
-                            "application/octet-stream": {
-                                "schema": {
-                                    "type": "string",
-                                    "format": "binary"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request parameters"
-                    },
-                    "404": {
-                        "description": "Artifact not found"
-                    }
-                },
-                "security": [
-                    {
-                        "basicAuth": []
-                    }
-                ],
-                "operationId": "RetrieveLatestArtifact"
-            }
-        },
         "/artifactory/api/system/storage/optimize": {
             "post": {
                 "tags": [],
@@ -1579,6 +1519,57 @@
                         }
                     }
                 ]
+            }
+        },
+        "/artifactory/{repo-key}/{item-path}": {
+            "get": {
+                "summary": "Retrieve Latest Artifact",
+                "description": "Returns the latest artifact version from the specified destination.",
+                "parameters": [
+                    {
+                        "name": "repo-key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Repository key"
+                    },
+                    {
+                        "name": "item-path",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Path to the artifact (e.g., path/to/artifact.ext)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful retrieval of the latest artifact",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "404": {
+                        "description": "Artifact not found"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "operationId": "RetrieveLatestArtifact"
             }
         }
     },
