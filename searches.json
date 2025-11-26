@@ -3,7 +3,7 @@
     "info": {
         "title": "Searches",
         "version": "1.0.0",
-        "description": "Provides various search functionalities for artifact repositories including checksum, license, archive entries, latest version, Docker repositories, and more."
+        "description": "Updated- Provides various search functionalities for artifact repositories including checksum, license, archive entries, latest version, Docker repositories, and more."
     },
     "paths": {
         "/artifactory/api/search/badChecksum": {
